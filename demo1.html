@@ -163,7 +163,6 @@
       }
       isSliding = true
       var offsetLeft = parseInt($container.css("left"))
-      // console.log(offsetLeft + "a")
       $container.animate({
         // left: "+=" + imgWidth * index
         left: offsetLeft + imgWidth * index
@@ -187,9 +186,10 @@
         return
       }
       isSliding = true
+      var offsetLeft = parseInt($container.css("left"))
       $container.animate({
-        left: offsetLeft - imgWidth * index
         // left: "-=" + imgWidth * index
+        left: offsetLeft - imgWidth * index
       }, function() {
         currentPage += index
         if (currentPage === imgCount) {

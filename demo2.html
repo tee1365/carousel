@@ -128,81 +128,45 @@
 
     var timer
 
-    $container.append($imgs.first().clone())
-    $container.prepend($imgs.last().clone())
+    $container.width(imgWidth * imgCount)
 
-    $container.width(imgWidth * (imgCount + 2))
-    $container.css({
-      left: -imgWidth
+    play(0)
+
+    autoSlide()
+
+    $prebtn.on("click", function() {
+      playPre()
     })
 
-    $prebtn.on("click", function(e) {
-      e.preventDefault()
-      slidePre(1)
-    })
-
-    $nextbtn.on("click", function(e) {
-      e.preventDefault()
-      slideNext(1)
+    $nextbtn.on("click", function() {
+      playNext()
     })
 
     $bullets.on("click", function() {
       var index = $(this).index()
-      if (index > currentPage) {
-        slideNext(index - currentPage)
-      } else if (index < currentPage) {
-        slidePre(currentPage - index)
-      }
+      play(index)
     })
 
-    autoSlide()
-
-    function slidePre(index) {
+    function play(pageIndex) {
       if (isSliding) {
         return
       }
       isSliding = true
-      var offsetLeft = parseInt($container.css("left"))
-      $container.animate({
-        // left: "+=" + imgWidth * index
-        left: offsetLeft + imgWidth * index
-      }, function() {
-        currentPage -= index
-        if (currentPage < 0) {
-          currentPage = imgCount - 1
-          $container.css({
-            left: -imgWidth * imgCount
-          })
-        }
-        setBullet()
+      $imgs.eq(currentPage).fadeIn()
+      $imgs.eq(pageIndex).fadeOut(function() {
         isSliding = false
       })
-      window.clearInterval(timer)
-      autoSlide()
+      currentPage = pageIndex
+      setBullet()
     }
 
-    function slideNext(index) {
-      if (isSliding) {
-        return
-      }
-      isSliding = true
-      var offsetLeft = parseInt($container.css("left"))
-      $container.animate({
-        // left: "-=" + imgWidth * index
-        left: offsetLeft - imgWidth * index
-      }, function() {
-        currentPage += index
-        if (currentPage === imgCount) {
-          currentPage = 0
-          $container.css({
-            left: -imgWidth
-          })
-        }
-        setBullet()
-        isSliding = false
-      })
-      window.clearInterval(timer)
-      autoSlide()
+
+    function playPre() {
+      
+    }
+
+    function playNext() {
+
     }
 
     function setBullet() {

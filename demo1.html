@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .clearfix {
+      content: "";
+      display: block;
+      clear: both;
+    }
+
+    .slideshow {
+      margin: 20px auto;
+      width: 600px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .container {
+      position: relative;
+    }
+
+    .container li {
+      height: 400px;
+      width: 600px;
+      float: left;
+      list-style: none;
+    }
+
+    .container img {
+      width: 100%;
+      height: 100%;
+    }
+
+    .arrow {
+      position: absolute;
+      top: 50%;
+      margin-top: -20px;
+      /* transform: translateY(-50%); */
+      width: 40px;
+      height: 40px;
+      border: 1px solid #fff;
+      border-radius: 50%;
+      text-align: center;
+      text-decoration: none;
+      color: #fff;
+      line-height: 40px;
+    }
+
+    .arrow:hover {
+      opacity: 0.8;
+    }
+
+    .pre {
+      left: 10px;
+    }
+
+    .next {
+      right: 10px;
+    }
+
+    .bullet {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .bullet li {
+      display: inline-block;
+      list-style: none;
+      border: 1px solid #fff;
+      width: 30px;
+      height: 8px;
+      border-radius: 3px;
+      margin: 0 5px;
+      cursor: pointer;
+    }
+
+    .bullet li.active {
+      background-color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="slideshow">
+    <ul class="container clearfix">
+      <li><a href="#"><img src="https://images.unsplash.com/photo-1503640538573-148065ba4904?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=07c73b2d07218491dacf8511f3ee79e3&auto=format&fit=crop&w=1050&q=80" alt=""></a></li>
+      <li><a href="#"><img src="https://images.unsplash.com/photo-1465414951857-102134ffaa57?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=90e9feaf6e61c61f64f444ac52b606ed&auto=format&fit=crop&w=1053&q=80" alt=""></a></li>
+      <li><a href="#"><img src="https://images.unsplash.com/photo-1477520353136-d75b998f342f?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=77354021928dbd71be5fe33f57721e0e&auto=format&fit=crop&w=1950&q=80" alt=""></a></li>
+      <li><a href="#"><img src="https://images.unsplash.com/photo-1503933166348-a1a86c17b3a0?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=625fe6fd55bfcc756490582ae368b210&auto=format&fit=crop&w=1050&q=80" alt=""></a></li>
+    </ul>
+    <a class="pre arrow" href="#">&lt;</a>
+    <a class="next arrow" href="#">&gt;</a>
+    <ul class="bullet">
+      <li class="active"></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </div>
+  <script>
+    var $container = $(".container")
+    var $imgs = $(".container>li")
+    var $prebtn = $(".pre")
+    var $nextbtn = $(".next")
+    var $bullets = $(".bullet>li")
+
+    var isSliding = false
+
+    var currentPage = 0
+
+    var imgCount = $imgs.length
+    var imgWidth = $imgs.width()
+
+    var timer
+
+    $container.append($imgs.first().clone())
+    $container.prepend($imgs.last().clone())
+
+    $container.width(imgWidth * (imgCount + 2))
+    $container.css({
+      left: -imgWidth
+    })
+
+    $prebtn.on("click", function(e) {
+      e.preventDefault()
+      slidePre(1)
+    })
+
+    $nextbtn.on("click", function(e) {
+      e.preventDefault()
+      slideNext(1)
+    })
+
+    $bullets.on("click", function() {
+      var index = $(this).index()
+      if (index > currentPage) {
+        slideNext(index - currentPage)
+      } else if (index < currentPage) {
+        slidePre(currentPage - index)
+      }
+    })
+
+    autoSlide()
+
+    function slidePre(index) {
+      if (isSliding) {
+        return
+      }
+      isSliding = true
+      var offsetLeft = parseInt($container.css("left"))
+      // console.log(offsetLeft + "a")
+      $container.animate({
+        // left: "+=" + imgWidth * index
+        left: offsetLeft + imgWidth * index
+      }, function() {
+        currentPage -= index
+        if (currentPage < 0) {
+          currentPage = imgCount - 1
+          $container.css({
+            left: -imgWidth * imgCount
+          })
+        }
+        setBullet()
+        isSliding = false
+      })
+      window.clearInterval(timer)
+      autoSlide()
+    }
+
+    function slideNext(index) {
+      if (isSliding) {
+        return
+      }
+      isSliding = true
+      $container.animate({
+        left: offsetLeft - imgWidth * index
+        // left: "-=" + imgWidth * index
+      }, function() {
+        currentPage += index
+        if (currentPage === imgCount) {
+          currentPage = 0
+          $container.css({
+            left: -imgWidth
+          })
+        }
+        setBullet()
+        isSliding = false
+      })
+      window.clearInterval(timer)
+      autoSlide()
+    }
+
+    function setBullet() {
+      $bullets.each(function() {
+        $(this).removeClass("active")
+      })
+      $bullets.eq(currentPage).addClass("active")
+    }
+
+    function autoSlide() {
+      timer = setInterval(function() {
+        slideNext(1)
+      }, 3000)
+    }
+  </script>
+</body>
+
+</html>

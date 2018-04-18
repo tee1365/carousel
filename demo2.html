@@ -56,10 +56,7 @@
       text-decoration: none;
       color: #fff;
       line-height: 40px;
-    }
-
-    .arrow:hover {
-      opacity: 0.8;
+      display: none;
     }
 
     .pre {
@@ -70,27 +67,37 @@
       right: 10px;
     }
 
-    .bullet {
+    .thumbnail {
       position: absolute;
-      bottom: 10px;
+      bottom: 0;
       width: 100%;
       z-index: 1;
       text-align: center;
+      transition: 0.2s;
     }
 
-    .bullet li {
+    .thumbnail:hover {
+      background-color: rgba(0, 0, 0, 0.6);
+      transition: 0.2s;
+    }
+
+    .thumbnail>li {
       display: inline-block;
       list-style: none;
-      border: 1px solid #fff;
-      width: 30px;
-      height: 8px;
-      border-radius: 3px;
-      margin: 0 5px;
+      width: 60px;
+      height: 40px;
+      margin: 10px;
       cursor: pointer;
+      opacity: 0.4;
     }
 
-    .bullet li.active {
-      background-color: #fff;
+    .thumbnail>li img {
+      height: 100%;
+      width: 100%;
+    }
+
+    .thumbnail li.active {
+      opacity: 1;
     }
   </style>
 </head>
@@ -105,19 +112,21 @@
     </ul>
     <a class="pre arrow" href="#">&lt;</a>
     <a class="next arrow" href="#">&gt;</a>
-    <ul class="bullet">
-      <li class="active"></li>
-      <li></li>
-      <li></li>
-      <li></li>
+    <ul class="thumbnail">
+      <li class="active"><a href="#"><img src="https://images.unsplash.com/photo-1503640538573-148065ba4904?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=07c73b2d07218491dacf8511f3ee79e3&auto=format&fit=crop&w=1050&q=80" alt=""></a></li>
+      <li><a href="#"><img src="https://images.unsplash.com/photo-1465414951857-102134ffaa57?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=90e9feaf6e61c61f64f444ac52b606ed&auto=format&fit=crop&w=1053&q=80" alt=""></a></li>
+      <li><a href="#"><img src="https://images.unsplash.com/photo-1477520353136-d75b998f342f?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=77354021928dbd71be5fe33f57721e0e&auto=format&fit=crop&w=1950&q=80" alt=""></a></li>
+      <li><a href="#"><img src="https://images.unsplash.com/photo-1503933166348-a1a86c17b3a0?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=625fe6fd55bfcc756490582ae368b210&auto=format&fit=crop&w=1050&q=80" alt=""></a></li>
     </ul>
   </div>
   <script>
+    var $slideshow = $(".slideshow")
     var $container = $(".container")
     var $imgs = $(".container>li")
+    var $arrow = $(".arrow")
     var $prebtn = $(".pre")
     var $nextbtn = $(".next")
-    var $bullets = $(".bullet>li")
+    var $thumbnail = $(".thumbnail>li")
 
     var isSliding = false
 
@@ -134,6 +143,14 @@
 
     autoSlide()
 
+    $slideshow.on("mouseenter", function() {
+      $arrow.show(200)
+    })
+
+    $slideshow.on("mouseleave", function() {
+      $arrow.hide(200)
+    })
+
     $prebtn.on("click", function() {
       playPre()
     })
@@ -142,43 +159,48 @@
       playNext()
     })
 
-    $bullets.on("click", function() {
+    $thumbnail.on("click", function() {
       var index = $(this).index()
       play(index)
     })
 
     function play(pageIndex) {
-      if (isSliding) {
-        return
+      if (currentPage !== pageIndex) {
+        if (isSliding) {
+          return
+        }
+        isSliding = true
+        $imgs.eq(currentPage).fadeOut(500)
+        $imgs.eq(pageIndex).fadeIn(500, function() {
+          isSliding = false
+        })
+        console.log(currentPage, pageIndex)
+        currentPage = pageIndex
+        setBullet()
+        clearInterval(timer)
+        autoSlide()
       }
-      isSliding = true
-      $imgs.eq(currentPage).fadeIn()
-      $imgs.eq(pageIndex).fadeOut(function() {
-        isSliding = false
-      })
-      currentPage = pageIndex
-      setBullet()
     }
 
-
-    function playPre() {
-      
-    }
 
     function playNext() {
+      return play((currentPage + 1) % imgCount)
+    }
 
+    function playPre() {
+      return play((currentPage + imgCount - 1) % imgCount)
     }
 
     function setBullet() {
-      $bullets.each(function() {
+      $thumbnail.each(function() {
         $(this).removeClass("active")
       })
-      $bullets.eq(currentPage).addClass("active")
+      $thumbnail.eq(currentPage).addClass("active")
     }
 
     function autoSlide() {
       timer = setInterval(function() {
-        slideNext(1)
+        playNext()
       }, 3000)
     }
   </script>
